@@ -12,14 +12,20 @@
 namespace Broadway\Saga\State\MongoDB;
 
 use Broadway\Saga\State\Testing\AbstractRepositoryTest;
+use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Configuration;
 use Doctrine\MongoDB\Connection;
 
 class MongoDBRepositoryTest extends AbstractRepositoryTest
 {
     protected static $dbName = 'doctrine_mongodb';
+
+    /** @var Connection */
     protected $connection;
 
+    /**
+     * @return MongoDBRepository
+     */
     protected function createRepository()
     {
         $config = new Configuration();
@@ -31,8 +37,12 @@ class MongoDBRepositoryTest extends AbstractRepositoryTest
         return new MongoDBRepository($coll);
     }
 
+    /**
+     *
+     */
     public function tearDown()
     {
+        /** @var Collection[] $collections */
         $collections = $this->connection->selectDatabase(self::$dbName)->listCollections();
         foreach ($collections as $collection) {
             $collection->drop();

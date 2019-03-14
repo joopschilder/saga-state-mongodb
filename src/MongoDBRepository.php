@@ -19,8 +19,13 @@ use Doctrine\MongoDB\Collection;
 
 class MongoDBRepository implements RepositoryInterface
 {
+    /** @var Collection */
     private $collection;
 
+    /**
+     * MongoDBRepository constructor.
+     * @param Collection $collection
+     */
     public function __construct(Collection $collection)
     {
         $this->collection = $collection;
@@ -31,9 +36,9 @@ class MongoDBRepository implements RepositoryInterface
      */
     public function findOneBy(Criteria $criteria, $sagaId)
     {
-        $query   = $this->createQuery($criteria, $sagaId);
+        $query = $this->createQuery($criteria, $sagaId);
         $results = $query->execute();
-        $count   = count($results);
+        $count = count($results);
 
         if ($count === 1) {
             return State::deserialize(current($results->toArray()));
@@ -51,9 +56,9 @@ class MongoDBRepository implements RepositoryInterface
      */
     public function save(State $state, $sagaId)
     {
-        $serializedState            = $state->serialize();
-        $serializedState['_id']     = $serializedState['id'];
-        $serializedState['sagaId']  = $sagaId;
+        $serializedState = $state->serialize();
+        $serializedState['_id'] = $serializedState['id'];
+        $serializedState['sagaId'] = $sagaId;
         $serializedState['removed'] = $state->isDone();
 
         $this->collection->save($serializedState);
@@ -62,7 +67,7 @@ class MongoDBRepository implements RepositoryInterface
     private function createQuery(Criteria $criteria, $sagaId)
     {
         $comparisons = $criteria->getComparisons();
-        $wheres      = [];
+        $wheres = [];
 
         foreach ($comparisons as $key => $value) {
             $wheres['values.' . $key] = $value;
